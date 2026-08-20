@@ -1,0 +1,452 @@
+cd /Users/satedchaif/FLASK
+git init
+git add .
+git commit -m "Initial city weather app"
+git branch -M main
+git remote add origin 你的GitHubRepository網址
+git push -u origin main<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f1e8">
+  <meta name="description" content="查詢世界城市與河南省城市的即時天氣和詳細預報">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+  <title>城市天氣站</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div class="brand-line"><span class="mark">°</span><span>CITY WEATHER DESK</span><span class="edition">LIVE / 2026</span><button type="button" id="theme-toggle" class="theme-toggle" aria-label="切換深色模式"><span class="theme-toggle-icon" aria-hidden="true">☼</span><span class="theme-toggle-label">深色模式</span><span class="theme-toggle-knob" aria-hidden="true"></span></button></div>
+      <section class="theme-panel" aria-labelledby="theme-title">
+        <div><p id="theme-title" class="theme-label">選擇你的氛圍</p><p class="theme-hint">換一個顏色，讓天氣頁面更像你的。</p></div>
+        <div class="theme-options" role="group" aria-label="頁面主題">
+          <button type="button" class="theme-option active" data-theme="morning"><span class="swatch morning-swatch"></span>晨霧</button>
+          <button type="button" class="theme-option" data-theme="night"><span class="swatch night-swatch"></span>深夜</button>
+          <button type="button" class="theme-option" data-theme="coast"><span class="swatch coast-swatch"></span>海岸</button>
+          <button type="button" class="theme-option" data-theme="sunset"><span class="swatch sunset-swatch"></span>日落</button>
+          <button type="button" class="theme-option" data-theme="forest"><span class="swatch forest-swatch"></span>森林</button>
+          <button type="button" class="theme-option" data-theme="glacier"><span class="swatch glacier-swatch"></span>冰川</button>
+          <button type="button" class="theme-option" data-theme="blossom"><span class="swatch blossom-swatch"></span>櫻花</button>
+          <button type="button" class="theme-option" data-theme="desert"><span class="swatch desert-swatch"></span>沙漠</button>
+          <button type="button" class="theme-option" data-theme="lavender"><span class="swatch lavender-swatch"></span>薰衣草</button>
+          <button type="button" class="theme-option" data-theme="citrus"><span class="swatch citrus-swatch"></span>柑橘</button>
+          <button type="button" class="theme-option" data-theme="charcoal"><span class="swatch charcoal-swatch"></span>炭灰</button>
+          <button type="button" class="theme-option" data-theme="rainy"><span class="swatch rainy-swatch"></span>雨幕</button>
+        </div>
+      </section>
+      <div class="unit-panel" aria-label="溫度單位">
+        <span>溫度單位</span>
+        <button type="button" id="unit-toggle" aria-label="切換華氏溫度">°C 攝氏</button>
+        <label class="language-picker" for="language-select"><span>語言</span><select id="language-select" aria-label="選擇語言">
+          <option value="zh-TW">繁體中文</option><option value="en">English</option><option value="zh-CN">简体中文</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="es">Español</option><option value="fr">Français</option><option value="ar">العربية</option><option value="ru">Русский</option><option value="it">Italiano</option><option value="de">Deutsch</option><option value="nl">Nederlands</option><option value="cs">Čeština</option><option value="no">Norsk</option><option value="fi">Suomi</option><option value="sv">Svenska</option><option value="hu">Magyar</option>
+        </select></label>
+      </div>
+      <h1>今天，想看看哪裡的天氣啊</h1>
+      <p class="intro">輸入城市名稱，查看即時體感與未來五日預報。</p>
+      <form id="search-form" class="search-bar">
+        <label class="sr-only" for="city">城市名稱</label>
+        <input id="city" name="city" placeholder="例如：台北、Tokyo、London" autocomplete="off" required>
+        <button type="button" id="clear-search" class="clear-button" aria-label="清除城市名稱" title="清除">×</button>
+        <button type="submit" id="search-button">查詢天氣</button>
+      </form>
+      <div class="section-heading"><h2>熱門城市</h2><span>快速查看</span></div>
+      <div class="quick-cities" aria-label="熱門城市">
+        <button type="button" data-city="台北">台北</button>
+        <button type="button" data-city="高雄">高雄</button>
+        <button type="button" data-city="東京">東京</button>
+        <button type="button" data-city="首爾">首爾</button>
+        <button type="button" data-city="新加坡">新加坡</button>
+        <button type="button" data-city="北京">北京</button>
+        <button type="button" data-city="上海">上海</button>
+        <button type="button" data-city="廣州">廣州</button>
+        <button type="button" data-city="深圳">深圳</button>
+        <button type="button" data-city="倫敦">倫敦</button>
+        <button type="button" data-city="巴黎">巴黎</button>
+        <button type="button" data-city="紐約">紐約</button>
+        <button type="button" data-city="洛杉磯">洛杉磯</button>
+        <button type="button" data-city="雪梨">雪梨</button>
+      </div>
+      <div id="recent-cities" class="recent-cities hidden" aria-label="最近查詢">
+        <div class="section-heading"><h2>最近查詢</h2><button type="button" id="clear-recent">清除紀錄</button></div>
+        <div id="recent-list" class="quick-cities"></div>
+      </div>
+      <details class="city-group world-cities">
+        <summary><span>世界城市</span><small>更多目的地</small></summary>
+          <button type="button" data-city="台南">台南</button><button type="button" data-city="新竹">新竹</button><button type="button" data-city="嘉義">嘉義</button><button type="button" data-city="宜蘭">宜蘭</button><button type="button" data-city="花蓮">花蓮</button><button type="button" data-city="澳門">澳門</button><button type="button" data-city="吉隆坡">吉隆坡</button><button type="button" data-city="雅加達">雅加達</button><button type="button" data-city="馬尼拉">馬尼拉</button><button type="button" data-city="釜山">釜山</button><button type="button" data-city="天津">天津</button><button type="button" data-city="南京">南京</button><button type="button" data-city="武漢">武漢</button><button type="button" data-city="廈門">廈門</button><button type="button" data-city="杜拜">杜拜</button><button type="button" data-city="米蘭">米蘭</button><button type="button" data-city="馬德里">馬德里</button><button type="button" data-city="阿姆斯特丹">阿姆斯特丹</button><button type="button" data-city="維也納">維也納</button><button type="button" data-city="開羅">開羅</button><button type="button" data-city="芝加哥">芝加哥</button><button type="button" data-city="西雅圖">西雅圖</button><button type="button" data-city="波士頓">波士頓</button><button type="button" data-city="華盛頓">華盛頓</button><button type="button" data-city="聖保羅">聖保羅</button><button type="button" data-city="里約熱內盧">里約熱內盧</button><button type="button" data-city="利馬">利馬</button><button type="button" data-city="布宜諾斯艾利斯">布宜諾斯艾利斯</button><button type="button" data-city="布拉格">布拉格</button><button type="button" data-city="蘇黎世">蘇黎世</button><button type="button" data-city="斯德哥爾摩">斯德哥爾摩</button><button type="button" data-city="伊斯坦堡">伊斯坦堡</button><button type="button" data-city="德里">德里</button><button type="button" data-city="孟買">孟買</button><button type="button" data-city="胡志明市">胡志明市</button><button type="button" data-city="河內">河內</button><button type="button" data-city="夏威夷">夏威夷</button><button type="button" data-city="拉斯維加斯">拉斯維加斯</button><button type="button" data-city="邁阿密">邁阿密</button>
+        </div>
+      </details>
+    </header>
+
+    <section class="henan-panel" aria-labelledby="henan-title">
+      <div class="section-heading"><h2 id="henan-title">河南省城市</h2><span>18 個城市</span></div>
+      <p class="section-note">選擇河南省的城市，查看當地即時天氣與五日預報。</p>
+      <div class="henan-tools">
+        <div class="city-pickers">
+          <label class="select-wrap" for="henan-city">
+            <span>選擇城市</span>
+            <select id="henan-city">
+            <option value="">請選擇河南城市</option>
+            <option>鄭州</option><option>開封</option><option>洛陽</option><option>平頂山</option>
+            <option>安陽</option><option>鶴壁</option><option>新鄉</option><option>焦作</option>
+            <option>濮陽</option><option>許昌</option><option>漯河</option><option>三門峽</option>
+            <option>南陽</option><option>商丘</option><option>信陽</option><option>周口</option>
+            <option>駐馬店</option><option>濟源</option>
+            </select>
+          </label>
+          <label class="filter-wrap" for="henan-filter">
+            <span>快速篩選</span>
+            <input id="henan-filter" type="search" placeholder="輸入城市名稱" autocomplete="off">
+          </label>
+        </div>
+        <div class="henan-cities" aria-label="河南省城市快速查詢">
+          <button type="button" data-city="鄭州">鄭州</button><button type="button" data-city="開封">開封</button><button type="button" data-city="洛陽">洛陽</button><button type="button" data-city="平頂山">平頂山</button><button type="button" data-city="安陽">安陽</button><button type="button" data-city="鶴壁">鶴壁</button><button type="button" data-city="新鄉">新鄉</button><button type="button" data-city="焦作">焦作</button><button type="button" data-city="濮陽">濮陽</button><button type="button" data-city="許昌">許昌</button><button type="button" data-city="漯河">漯河</button><button type="button" data-city="三門峽">三門峽</button><button type="button" data-city="南陽">南陽</button><button type="button" data-city="商丘">商丘</button><button type="button" data-city="信陽">信陽</button><button type="button" data-city="周口">周口</button><button type="button" data-city="駐馬店">駐馬店</button><button type="button" data-city="濟源">濟源</button>
+        </div>
+        <p id="henan-empty" class="empty-filter hidden">沒有符合的城市，請換個關鍵字。</p>
+      </div>
+    </section>
+
+    <section id="status" class="status" aria-live="polite">輸入城市開始查詢</section>
+    <section id="weather-card" class="weather-card hidden" aria-live="polite"></section>
+  </main>
+  <script>
+    const form = document.querySelector('#search-form');
+    const input = document.querySelector('#city');
+    const status = document.querySelector('#status');
+    const card = document.querySelector('#weather-card');
+    const searchButton = document.querySelector('#search-button');
+    const recentCities = document.querySelector('#recent-cities');
+    const recentList = document.querySelector('#recent-list');
+    const themeToggle = document.querySelector('#theme-toggle');
+    const themeToggleIcon = document.querySelector('.theme-toggle-icon');
+    const themeToggleLabel = document.querySelector('.theme-toggle-label');
+    const unitToggle = document.querySelector('#unit-toggle');
+    const languageSelect = document.querySelector('#language-select');
+    let activeRequest = null;
+    let temperatureUnit = localStorage.getItem('temperatureUnit') || 'C';
+    let currentLanguage = localStorage.getItem('weatherLanguage') || 'zh-TW';
+    const translations = {
+      'zh-TW': { dark: '深色模式', light: '淺色模式', unit: '溫度單位', language: '語言', theme: '選擇你的氛圍', hint: '換一個顏色，讓天氣頁面更像你的。', title: '今天，想看看哪裡的天氣啊', intro: '輸入城市名稱，查看即時體感與未來五日預報。', city: '城市名稱', placeholder: '例如：台北、Tokyo、London', search: '查詢天氣', searching: '查詢中…', popular: '熱門城市', quick: '快速查看', recent: '最近查詢', clearHistory: '清除紀錄', world: '世界城市', more: '更多目的地', henan: '河南省城市', count: '18 個城市', henanNote: '選擇河南省的城市，查看當地即時天氣與五日預報。', choose: '選擇城市', chooseHenan: '請選擇河南城市', filter: '快速篩選', filterPlaceholder: '輸入城市名稱', noMatch: '沒有符合的城市，請換個關鍵字。', initial: '輸入城市開始查詢', loading: '正在取得最新天氣…', updated: '已更新：', offline: '目前無法連線，顯示上次資料。', weather: { '晴朗': '晴朗', '大致晴朗': '大致晴朗', '局部多雲': '局部多雲', '陰天': '陰天', '有霧': '有霧', '小雨': '小雨', '中雨': '中雨', '大雨': '大雨', '陣雨': '陣雨', '小雪': '小雪', '中雪': '中雪', '大雪': '大雪', '雷雨': '雷雨' } },
+      en: { dark: 'Dark mode', light: 'Light mode', unit: 'Temperature', language: 'Language', theme: 'Choose your atmosphere', hint: 'Pick a color and make the weather page yours.', title: 'Where would you like to check the weather today?', intro: 'See current conditions and the five-day forecast.', city: 'City', placeholder: 'Try Taipei, Tokyo or London', search: 'Search weather', searching: 'Searching…', popular: 'Popular cities', quick: 'Quick view', recent: 'Recent searches', clearHistory: 'Clear history', world: 'World cities', more: 'More destinations', henan: 'Cities in Henan', count: '18 cities', henanNote: 'Choose a city in Henan for current conditions and a five-day forecast.', choose: 'Choose a city', chooseHenan: 'Select a Henan city', filter: 'Filter quickly', filterPlaceholder: 'Type a city name', noMatch: 'No matching city. Try another keyword.', initial: 'Enter a city to begin', loading: 'Getting the latest weather…', updated: 'Updated: ', offline: 'Offline: showing the last saved result.', weather: { '晴朗': 'Clear', '大致晴朗': 'Mostly clear', '局部多雲': 'Partly cloudy', '陰天': 'Cloudy', '有霧': 'Foggy', '小雨': 'Light rain', '中雨': 'Rain', '大雨': 'Heavy rain', '陣雨': 'Showers', '小雪': 'Light snow', '中雪': 'Snow', '大雪': 'Heavy snow', '雷雨': 'Thunderstorm' } },
+      'zh-CN': { dark: '深色模式', light: '浅色模式', unit: '温度单位', language: '语言', theme: '选择你的氛围', hint: '换一个颜色，让天气页面更像你的。', title: '今天，想看看哪里的天气啊', intro: '输入城市名称，查看实时体感与未来五日预报。', city: '城市名称', placeholder: '例如：台北、Tokyo、London', search: '查询天气', searching: '查询中…', popular: '热门城市', quick: '快速查看', recent: '最近查询', clearHistory: '清除记录', world: '世界城市', more: '更多目的地', henan: '河南省城市', count: '18 个城市', henanNote: '选择河南省的城市，查看当地实时天气与五日预报。', choose: '选择城市', chooseHenan: '请选择河南城市', filter: '快速筛选', filterPlaceholder: '输入城市名称', noMatch: '没有符合的城市，请换个关键词。', initial: '输入城市开始查询', loading: '正在获取最新天气…', updated: '已更新：', offline: '当前无法连接，显示上次数据。', weather: { '晴朗': '晴朗', '大致晴朗': '大致晴朗', '局部多雲': '局部多云', '陰天': '阴天', '有霧': '有雾', '小雨': '小雨', '中雨': '中雨', '大雨': '大雨', '陣雨': '阵雨', '小雪': '小雪', '中雪': '中雪', '大雪': '大雪', '雷雨': '雷雨' } },
+      ja: { dark: 'ダークモード', light: 'ライトモード', unit: '温度単位', language: '言語', theme: '雰囲気を選ぶ', hint: '色を変えて、あなたらしい天気ページに。', title: '今日はどこの天気を見ますか？', intro: '現在の体感と5日間の予報を確認できます。', city: '都市名', placeholder: '台北、東京、ロンドンなど', search: '天気を検索', searching: '検索中…', popular: '人気の都市', quick: 'クイック表示', recent: '最近の検索', clearHistory: '履歴を消去', world: '世界の都市', more: 'もっと見る', henan: '河南省の都市', count: '18都市', henanNote: '河南省の都市を選び、現在の天気と5日間の予報を確認します。', choose: '都市を選択', chooseHenan: '河南省の都市を選択', filter: '絞り込み', filterPlaceholder: '都市名を入力', noMatch: '一致する都市がありません。', initial: '都市を入力して検索', loading: '最新の天気を取得中…', updated: '更新：', offline: '接続できないため、前回のデータを表示しています。', weather: { '晴朗': '晴れ', '大致晴朗': '晴れ時々曇り', '局部多雲': '部分的に曇り', '陰天': '曇り', '有霧': '霧', '小雨': '小雨', '中雨': '雨', '大雨': '大雨', '陣雨': 'にわか雨', '小雪': '小雪', '中雪': '雪', '大雪': '大雪', '雷雨': '雷雨' } },
+      ko: { dark: '다크 모드', light: '라이트 모드', unit: '온도 단위', language: '언어', theme: '분위기 선택', hint: '색상을 바꾸어 나만의 날씨 페이지를 만들어 보세요.', title: '오늘은 어디의 날씨를 볼까요?', intro: '현재 체감 날씨와 5일 예보를 확인하세요.', city: '도시 이름', placeholder: '타이베이, 도쿄, 런던 등', search: '날씨 검색', searching: '검색 중…', popular: '인기 도시', quick: '빠른 보기', recent: '최근 검색', clearHistory: '기록 삭제', world: '세계 도시', more: '더 많은 목적지', henan: '허난성 도시', count: '18개 도시', henanNote: '허난성 도시의 현재 날씨와 5일 예보를 확인하세요.', choose: '도시 선택', chooseHenan: '허난성 도시 선택', filter: '빠른 필터', filterPlaceholder: '도시 이름 입력', noMatch: '일치하는 도시가 없습니다.', initial: '도시를 입력해 검색하세요', loading: '최신 날씨를 가져오는 중…', updated: '업데이트: ', offline: '연결할 수 없어 마지막 데이터를 표시합니다.', weather: { '晴朗': '맑음', '大致晴朗': '대체로 맑음', '局部多雲': '부분 흐림', '陰天': '흐림', '有霧': '안개', '小雨': '약한 비', '中雨': '비', '大雨': '폭우', '陣雨': '소나기', '小雪': '약한 눈', '中雪': '눈', '大雪': '폭설', '雷雨': '뇌우' } },
+      es: { dark: 'Modo oscuro', light: 'Modo claro', unit: 'Temperatura', language: 'Idioma', theme: 'Elige tu ambiente', hint: 'Cambia el color y haz tuya la página del tiempo.', title: '¿Qué ciudad quieres consultar hoy?', intro: 'Consulta las condiciones actuales y el pronóstico de cinco días.', city: 'Ciudad', placeholder: 'Taipei, Tokio o Londres', search: 'Buscar tiempo', searching: 'Buscando…', popular: 'Ciudades populares', quick: 'Vista rápida', recent: 'Búsquedas recientes', clearHistory: 'Borrar historial', world: 'Ciudades del mundo', more: 'Más destinos', henan: 'Ciudades de Henan', count: '18 ciudades', henanNote: 'Elige una ciudad de Henan para ver el tiempo actual y el pronóstico de cinco días.', choose: 'Elegir ciudad', chooseHenan: 'Elige una ciudad de Henan', filter: 'Filtrar', filterPlaceholder: 'Escribe una ciudad', noMatch: 'No hay ciudades coincidentes.', initial: 'Escribe una ciudad para comenzar', loading: 'Obteniendo el tiempo…', updated: 'Actualizado: ', offline: 'Sin conexión: se muestran los últimos datos guardados.', weather: { '晴朗': 'Despejado', '大致晴朗': 'Mayormente despejado', '局部多雲': 'Parcialmente nublado', '陰天': 'Nublado', '有霧': 'Niebla', '小雨': 'Lluvia ligera', '中雨': 'Lluvia', '大雨': 'Lluvia intensa', '陣雨': 'Chubascos', '小雪': 'Nieve ligera', '中雪': 'Nieve', '大雪': 'Nieve intensa', '雷雨': 'Tormenta' } },
+      fr: { dark: 'Mode sombre', light: 'Mode clair', unit: 'Température', language: 'Langue', theme: 'Choisissez votre ambiance', hint: 'Changez la couleur pour personnaliser la météo.', title: 'Quelle ville voulez-vous consulter aujourd’hui ?', intro: 'Consultez les conditions actuelles et les prévisions à cinq jours.', city: 'Ville', placeholder: 'Taipei, Tokyo ou Londres', search: 'Rechercher la météo', searching: 'Recherche…', popular: 'Villes populaires', quick: 'Accès rapide', recent: 'Recherches récentes', clearHistory: 'Effacer l’historique', world: 'Villes du monde', more: 'Plus de destinations', henan: 'Villes du Henan', count: '18 villes', henanNote: 'Choisissez une ville du Henan pour voir la météo actuelle et les prévisions.', choose: 'Choisir une ville', chooseHenan: 'Choisir une ville du Henan', filter: 'Filtrer', filterPlaceholder: 'Saisissez une ville', noMatch: 'Aucune ville correspondante.', initial: 'Saisissez une ville pour commencer', loading: 'Récupération de la météo…', updated: 'Mis à jour : ', offline: 'Hors ligne : affichage des dernières données enregistrées.', weather: { '晴朗': 'Dégagé', '大致晴朗': 'Plutôt dégagé', '局部多雲': 'Partiellement nuageux', '陰天': 'Nuageux', '有霧': 'Brouillard', '小雨': 'Pluie légère', '中雨': 'Pluie', '大雨': 'Forte pluie', '陣雨': 'Averses', '小雪': 'Neige légère', '中雪': 'Neige', '大雪': 'Forte neige', '雷雨': 'Orage' } },
+      ar: { dark: 'الوضع الداكن', light: 'الوضع الفاتح', unit: 'درجة الحرارة', language: 'اللغة', theme: 'اختر أجواءك', hint: 'غيّر اللون واجعل صفحة الطقس أقرب إليك.', title: 'ما المدينة التي تريد معرفة طقسها اليوم؟', intro: 'اطّلع على الحالة الحالية وتوقعات خمسة أيام.', city: 'المدينة', placeholder: 'تايبيه أو طوكيو أو لندن', search: 'بحث الطقس', searching: 'جارٍ البحث…', popular: 'مدن شائعة', quick: 'عرض سريع', recent: 'عمليات البحث الأخيرة', clearHistory: 'مسح السجل', world: 'مدن العالم', more: 'وجهات أخرى', henan: 'مدن خنان', count: '18 مدينة', henanNote: 'اختر مدينة في خنان للاطلاع على الطقس الحالي وتوقعات خمسة أيام.', choose: 'اختر مدينة', chooseHenan: 'اختر مدينة في خنان', filter: 'تصفية سريعة', filterPlaceholder: 'اكتب اسم مدينة', noMatch: 'لا توجد مدينة مطابقة.', initial: 'أدخل مدينة للبدء', loading: 'جارٍ جلب أحدث الطقس…', updated: 'تم التحديث: ', offline: 'غير متصل: عرض آخر بيانات محفوظة.', weather: { '晴朗': 'صافٍ', '大致晴朗': 'صافٍ غالبًا', '局部多雲': 'غائم جزئيًا', '陰天': 'غائم', '有霧': 'ضباب', '小雨': 'مطر خفيف', '中雨': 'مطر', '大雨': 'مطر غزير', '陣雨': 'زخات', '小雪': 'ثلج خفيف', '中雪': 'ثلج', '大雪': 'ثلج غزير', '雷雨': 'عاصفة رعدية' } },
+      ru: { dark: 'Тёмная тема', light: 'Светлая тема', unit: 'Температура', language: 'Язык', theme: 'Выберите атмосферу', hint: 'Смените цвет и сделайте страницу своей.', title: 'Погоду какого города посмотрим сегодня?', intro: 'Текущие условия и прогноз на пять дней.', city: 'Город', placeholder: 'Тайбэй, Токио или Лондон', search: 'Найти погоду', searching: 'Поиск…', popular: 'Популярные города', quick: 'Быстрый просмотр', recent: 'Последние запросы', clearHistory: 'Очистить историю', world: 'Города мира', more: 'Другие направления', henan: 'Города Хэнани', count: '18 городов', henanNote: 'Выберите город Хэнани для просмотра текущей погоды и прогноза.', choose: 'Выберите город', chooseHenan: 'Выберите город Хэнани', filter: 'Быстрый фильтр', filterPlaceholder: 'Введите город', noMatch: 'Подходящих городов нет.', initial: 'Введите город для поиска', loading: 'Получаем свежую погоду…', updated: 'Обновлено: ', offline: 'Нет связи: показаны последние сохранённые данные.', weather: { '晴朗': 'Ясно', '大致晴朗': 'Преимущественно ясно', '局部多雲': 'Переменная облачность', '陰天': 'Облачно', '有霧': 'Туман', '小雨': 'Небольшой дождь', '中雨': 'Дождь', '大雨': 'Сильный дождь', '陣雨': 'Ливни', '小雪': 'Небольшой снег', '中雪': 'Снег', '大雪': 'Сильный снег', '雷雨': 'Гроза' } },
+      it: { dark: 'Modalità scura', light: 'Modalità chiara', unit: 'Temperatura', language: 'Lingua', theme: 'Scegli la tua atmosfera', hint: 'Cambia colore e rendi tua la pagina meteo.', title: 'Di quale città vuoi vedere il meteo oggi?', intro: 'Condizioni attuali e previsioni per cinque giorni.', city: 'Città', placeholder: 'Taipei, Tokyo o Londra', search: 'Cerca meteo', searching: 'Ricerca…', popular: 'Città popolari', quick: 'Vista rapida', recent: 'Ricerche recenti', clearHistory: 'Cancella cronologia', world: 'Città del mondo', more: 'Altre destinazioni', henan: 'Città dell’Henan', count: '18 città', henanNote: 'Scegli una città dell’Henan per vedere meteo e previsioni.', choose: 'Scegli città', chooseHenan: 'Scegli una città dell’Henan', filter: 'Filtro rapido', filterPlaceholder: 'Inserisci una città', noMatch: 'Nessuna città corrispondente.', initial: 'Inserisci una città per iniziare', loading: 'Recupero del meteo…', updated: 'Aggiornato: ', offline: 'Offline: mostrati gli ultimi dati salvati.', weather: { '晴朗': 'Sereno', '大致晴朗': 'Prevalentemente sereno', '局部多雲': 'Parzialmente nuvoloso', '陰天': 'Nuvoloso', '有霧': 'Nebbia', '小雨': 'Pioggia debole', '中雨': 'Pioggia', '大雨': 'Pioggia forte', '陣雨': 'Rovesci', '小雪': 'Neve debole', '中雪': 'Neve', '大雪': 'Neve forte', '雷雨': 'Temporale' } },
+      de: { dark: 'Dunkelmodus', light: 'Hellmodus', unit: 'Temperatur', language: 'Sprache', theme: 'Wähle deine Atmosphäre', hint: 'Ändere die Farbe und mach die Wetterseite zu deiner.', title: 'Für welche Stadt möchtest du heute das Wetter sehen?', intro: 'Aktuelle Bedingungen und Fünf-Tage-Prognose.', city: 'Stadt', placeholder: 'Taipeh, Tokio oder London', search: 'Wetter suchen', searching: 'Suche…', popular: 'Beliebte Städte', quick: 'Schnellansicht', recent: 'Letzte Suchen', clearHistory: 'Verlauf löschen', world: 'Weltstädte', more: 'Weitere Ziele', henan: 'Städte in Henan', count: '18 Städte', henanNote: 'Wähle eine Stadt in Henan für aktuelle Wetterdaten und die Fünf-Tage-Prognose.', choose: 'Stadt wählen', chooseHenan: 'Stadt in Henan wählen', filter: 'Schnellfilter', filterPlaceholder: 'Stadt eingeben', noMatch: 'Keine passende Stadt gefunden.', initial: 'Stadt eingeben und starten', loading: 'Aktuelles Wetter wird geladen…', updated: 'Aktualisiert: ', offline: 'Offline: letzte gespeicherte Daten werden angezeigt.', weather: { '晴朗': 'Klar', '大致晴朗': 'Überwiegend klar', '局部多雲': 'Teilweise bewölkt', '陰天': 'Bewölkt', '有霧': 'Nebel', '小雨': 'Leichter Regen', '中雨': 'Regen', '大雨': 'Starker Regen', '陣雨': 'Schauer', '小雪': 'Leichter Schnee', '中雪': 'Schnee', '大雪': 'Starker Schnee', '雷雨': 'Gewitter' } },
+      nl: { dark: 'Donkere modus', light: 'Lichte modus', unit: 'Temperatuur', language: 'Taal', theme: 'Kies je sfeer', hint: 'Verander de kleur en maak de weerpagina persoonlijk.', title: 'Van welke stad wil je vandaag het weer zien?', intro: 'Bekijk de huidige omstandigheden en de vijfdaagse verwachting.', city: 'Stad', placeholder: 'Taipei, Tokio of Londen', search: 'Weer zoeken', searching: 'Zoeken…', popular: 'Populaire steden', quick: 'Snel bekijken', recent: 'Recente zoekopdrachten', clearHistory: 'Geschiedenis wissen', world: 'Wereldsteden', more: 'Meer bestemmingen', henan: 'Steden in Henan', count: '18 steden', henanNote: 'Kies een stad in Henan voor het actuele weer en de vijfdaagse verwachting.', choose: 'Kies een stad', chooseHenan: 'Kies een stad in Henan', filter: 'Snel filteren', filterPlaceholder: 'Voer een stad in', noMatch: 'Geen overeenkomende stad.', initial: 'Voer een stad in om te beginnen', loading: 'Nieuwste weer ophalen…', updated: 'Bijgewerkt: ', offline: 'Offline: de laatst opgeslagen gegevens worden getoond.', weather: { '晴朗': 'Helder', '大致晴朗': 'Overwegend helder', '局部多雲': 'Deels bewolkt', '陰天': 'Bewolkt', '有霧': 'Mist', '小雨': 'Lichte regen', '中雨': 'Regen', '大雨': 'Zware regen', '陣雨': 'Buien', '小雪': 'Lichte sneeuw', '中雪': 'Sneeuw', '大雪': 'Zware sneeuw', '雷雨': 'Onweer' } },
+      cs: { dark: 'Tmavý režim', light: 'Světlý režim', unit: 'Teplota', language: 'Jazyk', theme: 'Vyberte atmosféru', hint: 'Změňte barvu a přizpůsobte si stránku počasí.', title: 'Počasí kterého města dnes zobrazit?', intro: 'Aktuální podmínky a pětidenní předpověď.', city: 'Město', placeholder: 'Tchaj-pej, Tokio nebo Londýn', search: 'Hledat počasí', searching: 'Hledání…', popular: 'Oblíbená města', quick: 'Rychlý přehled', recent: 'Nedávná hledání', clearHistory: 'Vymazat historii', world: 'Světová města', more: 'Další destinace', henan: 'Města v Henanu', count: '18 měst', henanNote: 'Vyberte město v Henanu pro aktuální počasí a pětidenní předpověď.', choose: 'Vybrat město', chooseHenan: 'Vyberte město v Henanu', filter: 'Rychlý filtr', filterPlaceholder: 'Zadejte město', noMatch: 'Žádné odpovídající město.', initial: 'Zadejte město', loading: 'Načítání počasí…', updated: 'Aktualizováno: ', offline: 'Offline: zobrazují se poslední uložená data.', weather: { '晴朗': 'Jasno', '大致晴朗': 'Většinou jasno', '局部多雲': 'Částečně oblačno', '陰天': 'Zataženo', '有霧': 'Mlha', '小雨': 'Slabý déšť', '中雨': 'Déšť', '大雨': 'Silný déšť', '陣雨': 'Přeháňky', '小雪': 'Slabé sněžení', '中雪': 'Sníh', '大雪': 'Silné sněžení', '雷雨': 'Bouřka' } },
+      no: { dark: 'Mørk modus', light: 'Lys modus', unit: 'Temperatur', language: 'Språk', theme: 'Velg stemning', hint: 'Bytt farge og gjør værsiden til din egen.', title: 'Hvilken by vil du sjekke været i dag?', intro: 'Se nåværende forhold og femdagersvarsel.', city: 'By', placeholder: 'Taipei, Tokyo eller London', search: 'Søk etter vær', searching: 'Søker…', popular: 'Populære byer', quick: 'Hurtigvisning', recent: 'Nylige søk', clearHistory: 'Tøm historikk', world: 'Verdensbyer', more: 'Flere reisemål', henan: 'Byer i Henan', count: '18 byer', henanNote: 'Velg en by i Henan for vær nå og femdagersvarsel.', choose: 'Velg by', chooseHenan: 'Velg en by i Henan', filter: 'Hurtigfilter', filterPlaceholder: 'Skriv inn en by', noMatch: 'Ingen byer samsvarer.', initial: 'Skriv inn en by for å starte', loading: 'Henter siste vær…', updated: 'Oppdatert: ', offline: 'Frakoblet: viser sist lagrede data.', weather: { '晴朗': 'Klart', '大致晴朗': 'For det meste klart', '局部多雲': 'Delvis skyet', '陰天': 'Skyet', '有霧': 'Tåke', '小雨': 'Lett regn', '中雨': 'Regn', '大雨': 'Kraftig regn', '陣雨': 'Regnbyger', '小雪': 'Lett snø', '中雪': 'Snø', '大雪': 'Kraftig snø', '雷雨': 'Tordenvær' } },
+      fi: { dark: 'Tumma tila', light: 'Vaalea tila', unit: 'Lämpötila', language: 'Kieli', theme: 'Valitse tunnelmasi', hint: 'Vaihda väriä ja tee sääsivusta omasi.', title: 'Minkä kaupungin sään haluat nähdä tänään?', intro: 'Katso nykyinen sää ja viiden päivän ennuste.', city: 'Kaupunki', placeholder: 'Taipei, Tokio tai Lontoo', search: 'Hae sää', searching: 'Haetaan…', popular: 'Suositut kaupungit', quick: 'Pikakatselu', recent: 'Viimeisimmät haut', clearHistory: 'Tyhjennä historia', world: 'Maailman kaupungit', more: 'Lisää kohteita', henan: 'Henanin kaupungit', count: '18 kaupunkia', henanNote: 'Valitse Henanin kaupunki nähdäksesi sään ja viiden päivän ennusteen.', choose: 'Valitse kaupunki', chooseHenan: 'Valitse Henanin kaupunki', filter: 'Pikasuodatus', filterPlaceholder: 'Kirjoita kaupunki', noMatch: 'Vastaavaa kaupunkia ei löytynyt.', initial: 'Anna kaupunki aloittaaksesi', loading: 'Haetaan uusinta säätä…', updated: 'Päivitetty: ', offline: 'Offline: näytetään viimeksi tallennetut tiedot.', weather: { '晴朗': 'Selkeä', '大致晴朗': 'Enimmäkseen selkeä', '局部多雲': 'Puolipilvistä', '陰天': 'Pilvistä', '有霧': 'Sumua', '小雨': 'Kevyttä sadetta', '中雨': 'Sadetta', '大雨': 'Voimakasta sadetta', '陣雨': 'Sadekuuroja', '小雪': 'Kevyttä lunta', '中雪': 'Lunta', '大雪': 'Voimakasta lunta', '雷雨': 'Ukkosta' } },
+      sv: { dark: 'Mörkt läge', light: 'Ljust läge', unit: 'Temperatur', language: 'Språk', theme: 'Välj din atmosfär', hint: 'Byt färg och gör vädersidan till din.', title: 'Vilken stads väder vill du se idag?', intro: 'Se aktuella förhållanden och femdygnsprognosen.', city: 'Stad', placeholder: 'Taipei, Tokyo eller London', search: 'Sök väder', searching: 'Söker…', popular: 'Populära städer', quick: 'Snabbvy', recent: 'Senaste sökningar', clearHistory: 'Rensa historik', world: 'Världens städer', more: 'Fler destinationer', henan: 'Städer i Henan', count: '18 städer', henanNote: 'Välj en stad i Henan för aktuellt väder och femdygnsprognos.', choose: 'Välj stad', chooseHenan: 'Välj en stad i Henan', filter: 'Snabbfilter', filterPlaceholder: 'Skriv en stad', noMatch: 'Ingen matchande stad.', initial: 'Skriv en stad för att börja', loading: 'Hämtar senaste väder…', updated: 'Uppdaterad: ', offline: 'Offline: visar senast sparade data.', weather: { '晴朗': 'Klart', '大致晴朗': 'Mestadels klart', '局部多雲': 'Delvis molnigt', '陰天': 'Molnigt', '有霧': 'Dimma', '小雨': 'Lätt regn', '中雨': 'Regn', '大雨': 'Kraftigt regn', '陣雨': 'Skurar', '小雪': 'Lätt snö', '中雪': 'Snö', '大雪': 'Kraftigt snöfall', '雷雨': 'Åskväder' } },
+      hu: { dark: 'Sötét mód', light: 'Világos mód', unit: 'Hőmérséklet', language: 'Nyelv', theme: 'Válaszd ki a hangulatod', hint: 'Válts színt, és tedd személyessé az időjárásoldalt.', title: 'Melyik város időjárására vagy kíváncsi ma?', intro: 'Aktuális állapot és ötnapos előrejelzés.', city: 'Város', placeholder: 'Tajpej, Tokió vagy London', search: 'Időjárás keresése', searching: 'Keresés…', popular: 'Népszerű városok', quick: 'Gyorsnézet', recent: 'Legutóbbi keresések', clearHistory: 'Előzmények törlése', world: 'Világvárosok', more: 'További úti célok', henan: 'Henan városai', count: '18 város', henanNote: 'Válassz egy henani várost az aktuális időjárásért és az ötnapos előrejelzésért.', choose: 'Válassz várost', chooseHenan: 'Válassz egy henani várost', filter: 'Gyors szűrés', filterPlaceholder: 'Írj be egy várost', noMatch: 'Nincs egyező város.', initial: 'Adj meg egy várost a kezdéshez', loading: 'Legfrissebb időjárás lekérése…', updated: 'Frissítve: ', offline: 'Offline: a legutóbb mentett adatok láthatók.', weather: { '晴朗': 'Derült', '大致晴朗': 'Többnyire derült', '局部多雲': 'Részben felhős', '陰天': 'Borult', '有霧': 'Köd', '小雨': 'Enyhe eső', '中雨': 'Eső', '大雨': 'Heves eső', '陣雨': 'Záporok', '小雪': 'Enyhe havazás', '中雪': 'Hó', '大雪': 'Erős havazás', '雷雨': 'Zivatar' } }
+    };
+    const weatherIcons = {
+      '晴朗': '☀', '大致晴朗': '◒', '局部多雲': '◐', '陰天': '☁', '有霧': '≋', '霧凇': '≋',
+      '毛毛雨': '⋰', '小雨': '☂', '中雨': '☂', '大雨': '☂', '陣雨': '☂', '強陣雨': '☂',
+      '小雪': '❄', '中雪': '❄', '大雪': '❄', '雷雨': 'ϟ', '雷雨伴隨冰雹': 'ϟ'
+    };
+
+    function t(key) {
+      return translations[currentLanguage]?.[key] || translations.en[key] || key;
+    }
+
+    function weatherText(value) {
+      return translations[currentLanguage]?.weather?.[value] || value;
+    }
+
+    function applyLanguage(language) {
+      currentLanguage = translations[language] ? language : 'en';
+      document.documentElement.lang = currentLanguage;
+      document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+      languageSelect.value = currentLanguage;
+      document.querySelector('.theme-label').textContent = t('theme');
+      document.querySelector('.theme-hint').textContent = t('hint');
+      document.querySelector('.unit-panel > span').textContent = t('unit');
+      document.querySelector('.language-picker > span').textContent = t('language');
+      document.querySelector('h1').textContent = t('title');
+      document.querySelector('.intro').textContent = t('intro');
+      document.querySelector('label[for="city"]').textContent = t('city');
+      input.placeholder = t('placeholder');
+      document.querySelector('#clear-search').setAttribute('aria-label', t('city'));
+      document.querySelector('#clear-search').title = t('city');
+      searchButton.textContent = t('search');
+      document.querySelector('.hero > .section-heading h2').textContent = t('popular');
+      document.querySelector('.hero > .section-heading span').textContent = t('quick');
+      document.querySelector('#recent-cities h2').textContent = t('recent');
+      document.querySelector('#clear-recent').textContent = t('clearHistory');
+      document.querySelector('.world-cities summary span').textContent = t('world');
+      document.querySelector('.world-cities summary small').textContent = t('more');
+      document.querySelector('#henan-title').textContent = t('henan');
+      document.querySelector('.henan-panel .section-heading span').textContent = t('count');
+      document.querySelector('.section-note').textContent = t('henanNote');
+      document.querySelector('label[for="henan-city"] span').textContent = t('choose');
+      document.querySelector('#henan-city option').textContent = t('chooseHenan');
+      document.querySelector('label[for="henan-filter"] span').textContent = t('filter');
+      document.querySelector('#henan-filter').placeholder = t('filterPlaceholder');
+      document.querySelector('#henan-empty').textContent = t('noMatch');
+      if (!card.classList.contains('hidden')) {
+        const city = input.value.trim();
+        if (city) search(city);
+      } else {
+        status.textContent = t('initial');
+      }
+      applyTemperatureUnit();
+      applyTheme(document.body.dataset.theme || 'morning');
+      localStorage.setItem('weatherLanguage', currentLanguage);
+    }
+
+    function applyTheme(theme, animate = false) {
+      if (animate) {
+        document.body.classList.remove('theme-switching');
+        requestAnimationFrame(() => document.body.classList.add('theme-switching'));
+        window.setTimeout(() => document.body.classList.remove('theme-switching'), 520);
+      }
+      document.body.dataset.theme = theme;
+      document.body.classList.toggle('dark-mode', theme === 'night');
+      themeToggleIcon.textContent = theme === 'night' ? '☾' : '☼';
+      themeToggleLabel.textContent = theme === 'night' ? t('light') : t('dark');
+      themeToggle.setAttribute('aria-label', theme === 'night' ? t('light') : t('dark'));
+      document.querySelectorAll('.theme-option').forEach(option => {
+        option.classList.toggle('active', option.dataset.theme === theme);
+      });
+    }
+
+    languageSelect.addEventListener('change', event => applyLanguage(event.target.value));
+    applyLanguage(currentLanguage);
+    const savedTheme = localStorage.getItem('weatherTheme') || 'morning';
+    applyTheme(savedTheme);
+    themeToggle.addEventListener('click', () => {
+      const nextTheme = document.body.dataset.theme === 'night' ? 'morning' : 'night';
+      localStorage.setItem('weatherTheme', nextTheme);
+      applyTheme(nextTheme, true);
+    });
+    document.querySelectorAll('.theme-option').forEach(option => {
+      option.addEventListener('click', () => {
+        localStorage.setItem('weatherTheme', option.dataset.theme);
+        applyTheme(option.dataset.theme);
+      });
+    });
+
+    function formatTemperature(value) {
+      const celsius = Number(value);
+      if (!Number.isFinite(celsius)) return '--';
+      if (temperatureUnit === 'F') return `${Math.round((celsius * 9 / 5 + 32) * 10) / 10}°F`;
+      return `${celsius}°C`;
+    }
+
+    function formatValue(value, suffix = '') {
+      return value === null || value === undefined || value === '' ? '--' : `${value}${suffix}`;
+    }
+
+    function formatTime(value) {
+      return value ? value.slice(11, 16) : '--';
+    }
+
+    function applyTemperatureUnit() {
+      unitToggle.textContent = temperatureUnit === 'F' ? '°F' : '°C';
+      unitToggle.setAttribute('aria-label', `${t('unit')} ${temperatureUnit === 'F' ? '°C' : '°F'}`);
+    }
+
+    applyTemperatureUnit();
+    unitToggle.addEventListener('click', () => {
+      temperatureUnit = temperatureUnit === 'C' ? 'F' : 'C';
+      localStorage.setItem('temperatureUnit', temperatureUnit);
+      applyTemperatureUnit();
+      if (!card.classList.contains('hidden')) {
+        const city = input.value.trim();
+        if (city) search(city);
+      }
+    });
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      })[character]);
+    }
+
+    function renderWeather(data) {
+      const current = data.current;
+      const today = data.daily[0] || {};
+      const astronomy = data.astronomy || {};
+      const currentDescription = weatherText(current.description);
+      const image = data.location.image_url
+        ? `<img class="city-image" src="${escapeHtml(data.location.image_url)}" alt="${escapeHtml(data.location.name)}" loading="lazy">`
+        : '<div class="city-image image-fallback" aria-hidden="true">CITY<br>VIEW</div>';
+      const forecast = data.daily.map((day, index) => `
+        <li><span>${index === 0 ? t('today') || 'Today' : escapeHtml(day.date.slice(5))}</span><i>${weatherIcons[day.description] || '·'}</i><strong>${escapeHtml(weatherText(day.description))}</strong><b>${formatTemperature(day.max)} / ${formatTemperature(day.min)}</b></li>
+      `).join('');
+      card.innerHTML = `
+        ${image}
+        <div class="place"><div><p class="eyebrow">CURRENT CONDITIONS</p><h2>${escapeHtml(data.location.name)}</h2><p>${escapeHtml(data.location.admin1 || '')} ${escapeHtml(data.location.country)}</p></div><div class="weather-icon" aria-hidden="true">${weatherIcons[current.description] || '·'}</div><div class="temperature">${formatTemperature(current.temperature)}</div></div>
+        <div class="condition-row"><p class="condition">${escapeHtml(currentDescription)}</p><span class="updated">${t('updated')}${new Date().toLocaleTimeString(currentLanguage, { hour: '2-digit', minute: '2-digit' })}</span></div>
+        <div class="details"><span>${t('feelsLike') || 'Feels like'} <b>${formatTemperature(current.apparent_temperature)}</b></span><span>${t('humidity') || 'Humidity'} <b>${escapeHtml(current.humidity)}%</b></span><span>${t('wind') || 'Wind'} <b>${escapeHtml(current.wind_speed)} ${escapeHtml(current.wind_unit)}</b></span></div>
+        <h3>${t('details') || 'Details'}</h3>
+        <div class="detail-grid">
+          <div><span>${t('windType') || 'Wind type'}</span><b>${escapeHtml(current.wind_type)}</b></div><div><span>${t('windDirection') || 'Wind direction'}</span><b>${escapeHtml(current.wind_direction_text)} ${escapeHtml(current.wind_direction)}°</b></div><div><span>${t('gusts') || 'Gusts'}</span><b>${formatValue(current.wind_gusts, ` ${current.wind_gusts_unit}`)}</b></div><div><span>${t('average') || 'Average'}</span><b>${formatTemperature(today.mean)}</b></div><div><span>${t('visibility') || 'Visibility'}</span><b>${Number.isFinite(Number(current.visibility)) ? `${(Number(current.visibility) / 1000).toFixed(1)} km` : '--'}</b></div><div><span>${t('pressure') || 'Pressure'}</span><b>${formatValue(current.pressure, ` ${current.pressure_unit}`)}</b></div><div><span>${t('uv') || 'UV index'}</span><b>${formatValue(today.uv_index)}</b></div><div><span>${t('sunset') || 'Sunset'}</span><b>${formatTime(today.sunset)}</b></div><div><span>${t('moonlight') || 'Moonlight'}</span><b>${formatValue(astronomy.illumination, '%')}</b></div><div><span>${t('moonset') || 'Moonset'}</span><b>${escapeHtml(astronomy.moonset || '--')}</b></div>
+          <div class="wide-detail"><span>${t('nextFullMoon') || 'Next full moon'}</span><b>${escapeHtml(astronomy.next_full_moon || '--')}</b></div>
+        </div>
+        <h3>${t('forecast') || 'Five-day forecast'}</h3><ul class="forecast">${forecast}</ul>
+        <footer class="card-footer"><span>Open-Meteo · ${escapeHtml(data.location.timezone || '')}</span><button type="button" class="refresh-button" data-refresh-city="${escapeHtml(input.value.trim())}">↻ ${t('refresh') || 'Refresh'}</button></footer>
+      `;
+      card.classList.remove('hidden');
+      card.querySelector('.refresh-button').addEventListener('click', () => search(input.value.trim(), true));
+      loadCityImage(data.location.name);
+    }
+
+    async function loadCityImage(city) {
+      try {
+        const response = await fetch(`/api/city-image?city=${encodeURIComponent(city)}`);
+        const result = await response.json();
+        if (result.image_url && input.value.trim() === city) {
+          const image = document.createElement('img');
+          image.className = 'city-image';
+          image.alt = `${city} 城市圖片`;
+          image.loading = 'lazy';
+          image.referrerPolicy = 'no-referrer';
+          image.src = result.image_url;
+          const fallback = card.querySelector('.city-image');
+          image.addEventListener('error', () => {
+            image.className = 'city-image image-fallback';
+            image.innerHTML = 'CITY<br>VIEW';
+            image.removeAttribute('src');
+          }, { once: true });
+          if (fallback) fallback.replaceWith(image);
+        }
+      } catch (error) {
+        // 天氣結果已經顯示，圖片失敗時保留備援視覺。
+      }
+    }
+
+    function renderRecentCities() {
+      let cities = [];
+      try {
+        const stored = JSON.parse(localStorage.getItem('weatherRecentCities') || '[]');
+        cities = Array.isArray(stored) ? stored.filter(city => typeof city === 'string') : [];
+      } catch (error) {
+        localStorage.removeItem('weatherRecentCities');
+      }
+      recentList.innerHTML = '';
+      recentCities.classList.toggle('hidden', cities.length === 0);
+      cities.forEach(city => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = city;
+        button.addEventListener('click', () => { input.value = city; search(city); });
+        recentList.appendChild(button);
+      });
+    }
+
+    function saveRecentCity(city) {
+      let cities = [];
+      try {
+        const stored = JSON.parse(localStorage.getItem('weatherRecentCities') || '[]');
+        cities = Array.isArray(stored) ? stored.filter(item => typeof item === 'string') : [];
+      } catch (error) {
+        localStorage.removeItem('weatherRecentCities');
+      }
+      const updated = [city, ...cities.filter(item => item !== city)].slice(0, 5);
+      localStorage.setItem('weatherRecentCities', JSON.stringify(updated));
+      renderRecentCities();
+    }
+
+    function saveWeatherSnapshot(city, data) {
+      try {
+        const snapshots = JSON.parse(localStorage.getItem('weatherSnapshots') || '{}');
+        snapshots[city.toLowerCase()] = data;
+        localStorage.setItem('weatherSnapshots', JSON.stringify(snapshots));
+      } catch (error) {
+        localStorage.removeItem('weatherSnapshots');
+      }
+    }
+
+    function getWeatherSnapshot(city) {
+      try {
+        const snapshots = JSON.parse(localStorage.getItem('weatherSnapshots') || '{}');
+        return snapshots[city.toLowerCase()] || null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    async function search(city, forceRefresh = false) {
+      if (activeRequest) activeRequest.abort();
+      const controller = new AbortController();
+      activeRequest = controller;
+      const hadWeatherCard = !card.classList.contains('hidden');
+      status.textContent = t('loading');
+      status.classList.add('loading');
+      searchButton.disabled = true;
+      searchButton.textContent = t('searching');
+      try {
+        const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}${forceRefresh ? '&refresh=1' : ''}`, { signal: controller.signal });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || '查詢失敗');
+        renderWeather(data);
+        saveWeatherSnapshot(city, data);
+        saveRecentCity(city);
+        status.textContent = `${t('updated')}${data.location.name}`;
+      } catch (error) {
+        if (error.name === 'AbortError') return;
+        const snapshot = getWeatherSnapshot(city);
+        if (snapshot) {
+          renderWeather(snapshot);
+          status.textContent = `${t('offline')} ${snapshot.location.name}`;
+        } else {
+          status.textContent = hadWeatherCard
+            ? `${error.message}，已保留上一次結果。`
+            : error.message;
+        }
+      } finally {
+        if (activeRequest === controller) {
+          activeRequest = null;
+          status.classList.remove('loading');
+          searchButton.disabled = false;
+          searchButton.textContent = t('search');
+        }
+      }
+    }
+
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      if (input.value.trim()) search(input.value.trim());
+    });
+    const clearSearch = document.querySelector('#clear-search');
+    input.addEventListener('input', () => { clearSearch.classList.toggle('visible', input.value.length > 0); });
+    clearSearch.addEventListener('click', () => {
+      input.value = '';
+      input.focus();
+      clearSearch.classList.remove('visible');
+      status.textContent = '輸入城市開始查詢';
+      card.classList.add('hidden');
+    });
+    document.querySelector('#clear-recent').addEventListener('click', () => {
+      localStorage.removeItem('weatherRecentCities');
+      renderRecentCities();
+    });
+    renderRecentCities();
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/static/sw.js').catch(() => {});
+    }
+    document.querySelectorAll('[data-city]').forEach(button => {
+      button.addEventListener('click', () => { input.value = button.dataset.city; search(button.dataset.city); });
+    });
+    document.querySelector('#henan-city').addEventListener('change', event => {
+      if (event.target.value) { input.value = event.target.value; search(event.target.value); }
+    });
+    document.querySelector('#henan-filter').addEventListener('input', event => {
+      const keyword = event.target.value.trim().toLowerCase();
+      const buttons = [...document.querySelectorAll('.henan-cities [data-city]')];
+      buttons.forEach(button => {
+        button.hidden = keyword && !button.dataset.city.toLowerCase().includes(keyword);
+      });
+      document.querySelector('#henan-empty').classList.toggle('hidden', buttons.some(button => !button.hidden));
+    });
+  </script>
+</body>
+</html>
