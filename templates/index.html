@@ -463,6 +463,18 @@ git push -u origin main<!doctype html>
         surface.style.setProperty('--pointer-y', `${event.clientY - bounds.top}px`);
         surface.classList.add('pointer-lit');
       });
+      document.addEventListener('pointerdown', event => {
+        const surface = event.target.closest('.theme-panel, .henan-panel, .weather-card, .search-bar');
+        if (!surface) return;
+        const bounds = surface.getBoundingClientRect();
+        surface.style.setProperty('--pointer-x', `${event.clientX - bounds.left}px`);
+        surface.style.setProperty('--pointer-y', `${event.clientY - bounds.top}px`);
+        surface.classList.add('pointer-lit');
+        if (event.pointerType === 'touch') {
+          clearTimeout(surface.touchGlowTimer);
+          surface.touchGlowTimer = setTimeout(() => surface.classList.remove('pointer-lit'), 1200);
+        }
+      });
     }
     document.querySelectorAll('[data-city]').forEach(button => {
       button.addEventListener('click', () => { input.value = button.dataset.city; search(button.dataset.city); });

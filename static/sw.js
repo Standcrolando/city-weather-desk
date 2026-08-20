@@ -1,4 +1,4 @@
-const CACHE_NAME = 'city-weather-shell-v2';
+const CACHE_NAME = 'city-weather-shell-v3';
 const APP_SHELL = ['/', '/static/style.css', '/static/manifest.webmanifest'];
 
 self.addEventListener('install', event => {
