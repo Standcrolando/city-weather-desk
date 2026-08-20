@@ -149,6 +149,16 @@
       return translations[currentLanguage]?.[key] || translations.en[key] || key;
     }
 
+    const detailTranslations = {
+      'zh-TW': { today: '今天', feelsLike: '體感', humidity: '濕度', wind: '風速', details: '詳細資料', windType: '風的種類', windDirection: '風向', gusts: '陣風', average: '氣溫平均值', visibility: '能見度', pressure: '氣壓', uv: '紫外線指數', sunset: '日落時間', moonlight: '月亮照度', moonset: '月落時間', nextFullMoon: '下次滿月', forecast: '五日預報', refresh: '重新整理' },
+      en: { today: 'Today', feelsLike: 'Feels like', humidity: 'Humidity', wind: 'Wind', details: 'Details', windType: 'Wind type', windDirection: 'Wind direction', gusts: 'Gusts', average: 'Average temperature', visibility: 'Visibility', pressure: 'Pressure', uv: 'UV index', sunset: 'Sunset', moonlight: 'Moon illumination', moonset: 'Moonset', nextFullMoon: 'Next full moon', forecast: 'Five-day forecast', refresh: 'Refresh' },
+      'zh-CN': { today: '今天', feelsLike: '体感', humidity: '湿度', wind: '风速', details: '详细资料', windType: '风的种类', windDirection: '风向', gusts: '阵风', average: '平均气温', visibility: '能见度', pressure: '气压', uv: '紫外线指数', sunset: '日落时间', moonlight: '月亮照度', moonset: '月落时间', nextFullMoon: '下次满月', forecast: '五日预报', refresh: '刷新' }
+    };
+
+    function detailText(key) {
+      return detailTranslations[currentLanguage]?.[key] || detailTranslations.en[key] || key;
+    }
+
     function weatherText(value) {
       return translations[currentLanguage]?.weather?.[value] || value;
     }
@@ -272,20 +282,20 @@
         ? `<img class="city-image" src="${escapeHtml(data.location.image_url)}" alt="${escapeHtml(data.location.name)}" loading="lazy">`
         : '<div class="city-image image-fallback" aria-hidden="true">CITY<br>VIEW</div>';
       const forecast = data.daily.map((day, index) => `
-        <li><span>${index === 0 ? t('today') || 'Today' : escapeHtml(day.date.slice(5))}</span><i>${weatherIcons[day.description] || '·'}</i><strong>${escapeHtml(weatherText(day.description))}</strong><b>${formatTemperature(day.max)} / ${formatTemperature(day.min)}</b></li>
+        <li><span>${index === 0 ? detailText('today') : escapeHtml(day.date.slice(5))}</span><i>${weatherIcons[day.description] || '·'}</i><strong>${escapeHtml(weatherText(day.description))}</strong><b>${formatTemperature(day.max)} / ${formatTemperature(day.min)}</b></li>
       `).join('');
       card.innerHTML = `
         ${image}
         <div class="place"><div><p class="eyebrow">CURRENT CONDITIONS</p><h2>${escapeHtml(data.location.name)}</h2><p>${escapeHtml(data.location.admin1 || '')} ${escapeHtml(data.location.country)}</p></div><div class="weather-icon" aria-hidden="true">${weatherIcons[current.description] || '·'}</div><div class="temperature">${formatTemperature(current.temperature)}</div></div>
         <div class="condition-row"><p class="condition">${escapeHtml(currentDescription)}</p><span class="updated">${t('updated')}${new Date().toLocaleTimeString(currentLanguage, { hour: '2-digit', minute: '2-digit' })}</span></div>
-        <div class="details"><span>${t('feelsLike') || 'Feels like'} <b>${formatTemperature(current.apparent_temperature)}</b></span><span>${t('humidity') || 'Humidity'} <b>${escapeHtml(current.humidity)}%</b></span><span>${t('wind') || 'Wind'} <b>${escapeHtml(current.wind_speed)} ${escapeHtml(current.wind_unit)}</b></span></div>
-        <h3>${t('details') || 'Details'}</h3>
+        <div class="details"><span>${detailText('feelsLike')} <b>${formatTemperature(current.apparent_temperature)}</b></span><span>${detailText('humidity')} <b>${escapeHtml(current.humidity)}%</b></span><span>${detailText('wind')} <b>${escapeHtml(current.wind_speed)} ${escapeHtml(current.wind_unit)}</b></span></div>
+        <h3>${detailText('details')}</h3>
         <div class="detail-grid">
-          <div><span>${t('windType') || 'Wind type'}</span><b>${escapeHtml(current.wind_type)}</b></div><div><span>${t('windDirection') || 'Wind direction'}</span><b>${escapeHtml(current.wind_direction_text)} ${escapeHtml(current.wind_direction)}°</b></div><div><span>${t('gusts') || 'Gusts'}</span><b>${formatValue(current.wind_gusts, ` ${current.wind_gusts_unit}`)}</b></div><div><span>${t('average') || 'Average'}</span><b>${formatTemperature(today.mean)}</b></div><div><span>${t('visibility') || 'Visibility'}</span><b>${Number.isFinite(Number(current.visibility)) ? `${(Number(current.visibility) / 1000).toFixed(1)} km` : '--'}</b></div><div><span>${t('pressure') || 'Pressure'}</span><b>${formatValue(current.pressure, ` ${current.pressure_unit}`)}</b></div><div><span>${t('uv') || 'UV index'}</span><b>${formatValue(today.uv_index)}</b></div><div><span>${t('sunset') || 'Sunset'}</span><b>${formatTime(today.sunset)}</b></div><div><span>${t('moonlight') || 'Moonlight'}</span><b>${formatValue(astronomy.illumination, '%')}</b></div><div><span>${t('moonset') || 'Moonset'}</span><b>${escapeHtml(astronomy.moonset || '--')}</b></div>
-          <div class="wide-detail"><span>${t('nextFullMoon') || 'Next full moon'}</span><b>${escapeHtml(astronomy.next_full_moon || '--')}</b></div>
+          <div><span>${detailText('windType')}</span><b>${escapeHtml(current.wind_type)}</b></div><div><span>${detailText('windDirection')}</span><b>${escapeHtml(current.wind_direction_text)} ${escapeHtml(current.wind_direction)}°</b></div><div><span>${detailText('gusts')}</span><b>${formatValue(current.wind_gusts, ` ${current.wind_gusts_unit}`)}</b></div><div><span>${detailText('average')}</span><b>${formatTemperature(today.mean)}</b></div><div><span>${detailText('visibility')}</span><b>${Number.isFinite(Number(current.visibility)) ? `${(Number(current.visibility) / 1000).toFixed(1)} km` : '--'}</b></div><div><span>${detailText('pressure')}</span><b>${formatValue(current.pressure, ` ${current.pressure_unit}`)}</b></div><div><span>${detailText('uv')}</span><b>${formatValue(today.uv_index)}</b></div><div><span>${detailText('sunset')}</span><b>${formatTime(today.sunset)}</b></div><div><span>${detailText('moonlight')}</span><b>${formatValue(astronomy.illumination, '%')}</b></div><div><span>${detailText('moonset')}</span><b>${escapeHtml(astronomy.moonset || '--')}</b></div>
+          <div class="wide-detail"><span>${detailText('nextFullMoon')}</span><b>${escapeHtml(astronomy.next_full_moon || '--')}</b></div>
         </div>
-        <h3>${t('forecast') || 'Five-day forecast'}</h3><ul class="forecast">${forecast}</ul>
-        <footer class="card-footer"><span>Open-Meteo · ${escapeHtml(data.location.timezone || '')}</span><button type="button" class="refresh-button" data-refresh-city="${escapeHtml(input.value.trim())}">↻ ${t('refresh') || 'Refresh'}</button></footer>
+        <h3>${detailText('forecast')}</h3><ul class="forecast">${forecast}</ul>
+        <footer class="card-footer"><span>Open-Meteo · ${escapeHtml(data.location.timezone || '')}</span><button type="button" class="refresh-button" data-refresh-city="${escapeHtml(input.value.trim())}">↻ ${detailText('refresh')}</button></footer>
       `;
       card.classList.remove('hidden');
       card.querySelector('.refresh-button').addEventListener('click', () => search(input.value.trim(), true));
