@@ -268,6 +268,31 @@ def get_json(url, params):
     return response.json()
 
 
+def find_locations(city):
+    search_city = CITY_ALIASES.get(city, CITY_ALIASES.get(city.casefold(), city))
+    queries = [(search_city, "en")]
+    if search_city != city:
+        queries.append((city, "zh"))
+    else:
+        queries.extend((city, language) for language in ("zh", "ja", "ko", "fr", "es"))
+
+    seen = set()
+    for query, language in queries:
+        locations = get_json(
+            GEOCODING_URL,
+            {"name": query, "count": 5, "language": language, "format": "json"},
+        ).get("results", [])
+        unique_locations = []
+        for location in locations:
+            key = (location.get("latitude"), location.get("longitude"))
+            if key not in seen:
+                seen.add(key)
+                unique_locations.append(location)
+        if unique_locations:
+            return unique_locations
+    return []
+
+
 def get_cached_weather(city):
     cache_key = city.casefold()
     cached = weather_cache.get(cache_key)
@@ -362,11 +387,7 @@ def weather():
         if cached:
             return jsonify(cached)
 
-        search_city = CITY_ALIASES.get(city, CITY_ALIASES.get(city.casefold(), city))
-        locations = get_json(
-            GEOCODING_URL,
-            {"name": search_city, "count": 1, "language": "en", "format": "json"},
-        ).get("results", [])
+        locations = find_locations(city)
         if not locations:
             return jsonify({"error": f"找不到「{city}」，請嘗試英文城市名稱。"}), 404
 
