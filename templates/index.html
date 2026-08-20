@@ -173,6 +173,25 @@
       return detailTranslations[currentLanguage]?.[key] || detailTranslations.en[key] || key;
     }
 
+    const conditionTranslations = {
+      en: { 毛毛雨: 'Drizzle', 強陣雨: 'Heavy showers', 雷雨伴隨冰雹: 'Thunderstorm with hail', 霧凇: 'Rime fog' },
+      'zh-TW': { 毛毛雨: '毛毛雨', 強陣雨: '強陣雨', 雷雨伴隨冰雹: '雷雨伴隨冰雹', 霧凇: '霧凇' },
+      'zh-CN': { 毛毛雨: '毛毛雨', 強陣雨: '强阵雨', 雷雨伴隨冰雹: '雷雨伴随冰雹', 霧凇: '雾凇' },
+      ja: { 毛毛雨: '霧雨', 強陣雨: '強いにわか雨', 雷雨伴隨冰雹: '雹を伴う雷雨', 霧凇: '霧氷' },
+      ko: { 毛毛雨: '이슬비', 強陣雨: '강한 소나기', 雷雨伴隨冰雹: '우박을 동반한 뇌우', 霧凇: '상고대' },
+      es: { 毛毛雨: 'Llovizna', 強陣雨: 'Chubascos fuertes', 雷雨伴隨冰雹: 'Tormenta con granizo', 霧凇: 'Niebla helada' },
+      fr: { 毛毛雨: 'Bruine', 強陣雨: 'Fortes averses', 雷雨伴隨冰雹: 'Orage avec grêle', 霧凇: 'Brouillard givrant' },
+      de: { 毛毛雨: 'Nieselregen', 強陣雨: 'Starke Schauer', 雷雨伴隨冰雹: 'Gewitter mit Hagel', 霧凇: 'Raureifnebel' },
+      ru: { 毛毛雨: 'Морось', 強陣雨: 'Сильные ливни', 雷雨伴隨冰雹: 'Гроза с градом', 霧凇: 'Изморозь' },
+      it: { 毛毛雨: 'Pioviggine', 強陣雨: 'Rovesci forti', 雷雨伴隨冰雹: 'Temporale con grandine', 霧凇: 'Galaverna' },
+      nl: { 毛毛雨: 'Motregen', 強陣雨: 'Zware buien', 雷雨伴隨冰雹: 'Onweer met hagel', 霧凇: 'Rijpmist' },
+      cs: { 毛毛雨: 'Mrholení', 強陣雨: 'Silné přeháňky', 雷雨伴隨冰雹: 'Bouřka s krupobitím', 霧凇: 'Námraza' },
+      no: { 毛毛雨: 'Yr', 強陣雨: 'Kraftige regnbyger', 雷雨伴隨冰雹: 'Tordenvær med hagl', 霧凇: 'Rimfrosttåke' },
+      fi: { 毛毛雨: 'Tihkusade', 強陣雨: 'Voimakkaita kuuroja', 雷雨伴隨冰雹: 'Ukkosmyrsky ja rakeita', 霧凇: 'Kuurasumu' },
+      sv: { 毛毛雨: 'Duggregn', 強陣雨: 'Kraftiga skurar', 雷雨伴隨冰雹: 'Åska med hagel', 霧凇: 'Rimfrost' },
+      hu: { 毛毛雨: 'Szitálás', 強陣雨: 'Erős záporok', 雷雨伴隨冰雹: 'Jégesővel járó zivatar', 霧凇: 'Zúzmara' }
+    };
+
     const windTranslations = {
       'zh-TW': { 輕風: '輕風', 微風: '微風', 和風: '和風', 東: '東', 南: '南', 西: '西', 北: '北' },
       'zh-CN': { 輕風: '轻风', 微風: '微风', 和風: '和风', 東: '东', 南: '南', 西: '西', 北: '北' },
@@ -181,7 +200,15 @@
       ko: { 輕風: '산들바람', 微風: '미풍', 和風: '바람', 東: '동풍', 南: '남풍', 西: '서풍', 北: '북풍' },
       es: { 輕風: 'Brisa ligera', 微風: 'Brisa', 和風: 'Viento moderado', 東: 'Este', 南: 'Sur', 西: 'Oeste', 北: 'Norte' },
       fr: { 輕風: 'Brise légère', 微風: 'Brise', 和風: 'Vent modéré', 東: 'Est', 南: 'Sud', 西: 'Ouest', 北: 'Nord' },
-      de: { 輕風: 'Leichte Brise', 微風: 'Brise', 和風: 'Mäßiger Wind', 東: 'Ost', 南: 'Süd', 西: 'West', 北: 'Nord' }
+      de: { 輕風: 'Leichte Brise', 微風: 'Brise', 和風: 'Mäßiger Wind', 東: 'Ost', 南: 'Süd', 西: 'West', 北: 'Nord' },
+      ru: { 輕風: 'Лёгкий бриз', 微風: 'Бриз', 和風: 'Умеренный ветер', 東: 'Восток', 南: 'Юг', 西: 'Запад', 北: 'Север' },
+      it: { 輕風: 'Brezza leggera', 微風: 'Brezza', 和風: 'Vento moderato', 東: 'Est', 南: 'Sud', 西: 'Ovest', 北: 'Nord' },
+      nl: { 輕風: 'Lichte bries', 微風: 'Bries', 和風: 'Matige wind', 東: 'Oost', 南: 'Zuid', 西: 'West', 北: 'Noord' },
+      cs: { 輕風: 'Slabý vánek', 微風: 'Vánek', 和風: 'Mírný vítr', 東: 'Východ', 南: 'Jih', 西: 'Západ', 北: 'Sever' },
+      no: { 輕風: 'Lett bris', 微風: 'Bris', 和風: 'Moderat vind', 東: 'Øst', 南: 'Sør', 西: 'Vest', 北: 'Nord' },
+      fi: { 輕風: 'Kevyt tuuli', 微風: 'Tuulenvire', 和風: 'Kohtalainen tuuli', 東: 'Itä', 南: 'Etelä', 西: 'Länsi', 北: 'Pohjoinen' },
+      sv: { 輕風: 'Lätt bris', 微風: 'Bris', 和風: 'Måttlig vind', 東: 'Öst', 南: 'Söder', 西: 'Väst', 北: 'Norr' },
+      hu: { 輕風: 'Enyhe szellő', 微風: 'Szellő', 和風: 'Mérsékelt szél', 東: 'Kelet', 南: 'Dél', 西: 'Nyugat', 北: 'Észak' }
     };
 
     function windText(value) {
@@ -189,7 +216,7 @@
     }
 
     function weatherText(value) {
-      return translations[currentLanguage]?.weather?.[value] || value;
+      return conditionTranslations[currentLanguage]?.[value] || translations[currentLanguage]?.weather?.[value] || conditionTranslations.en[value] || value;
     }
 
     function applyLanguage(language) {
