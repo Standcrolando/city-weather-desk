@@ -281,10 +281,9 @@ h3 { margin: 28px 0 12px; font: 700 12px var(--font-ui); letter-spacing: 2px; co
   .unit-panel button { padding: 6px 10px; border: 1px solid var(--line); border-radius: 99px; color: var(--ink); background: var(--cream); font: 12px var(--font-ui); cursor: pointer; }
   .unit-panel button:hover { border-color: var(--teal); color: var(--teal); }
   .search-bar { display: block; padding: 8px; border-radius: 18px; border: 1px solid var(--glass-border); }
-  .search-bar input, .search-bar button { width: 100%; min-height: 52px; }
-  .search-bar input { padding: 12px 8px; border-bottom: 1px solid color-mix(in srgb, var(--ink) 58%, transparent); }
-  .clear-button { position: absolute; right: 12px; width: 34px; min-height: 52px !important; }
-  .search-bar button { margin-top: 10px; margin-left: 0; }
+  .search-bar input { width: 100%; min-height: 52px; padding: 12px 48px 12px 8px; border-bottom: 1px solid color-mix(in srgb, var(--ink) 58%, transparent); }
+  .clear-button { position: absolute; top: 8px; right: 8px; width: 42px; min-height: 52px !important; }
+  .search-bar > #search-button { display: block; width: 100%; min-height: 52px; margin-top: 14px; margin-left: 0; }
   .henan-panel { margin-top: 48px; padding: 22px 18px; }
   .city-pickers { grid-template-columns: 1fr; gap: 12px; }
   .henan-cities { margin-top: 0; }
@@ -306,6 +305,13 @@ h3 { margin: 28px 0 12px; font: 700 12px var(--font-ui); letter-spacing: 2px; co
   .forecast { grid-template-columns: 1fr; }
   .forecast li { grid-template-columns: 55px 34px 1fr auto; align-items: center; }
   .forecast strong { min-height: 0; }
+}
+@media (min-width: 621px) and (max-width: 980px) {
+  .search-bar { max-width: 720px; }
+  .search-bar { display: block; padding: 8px; }
+  .search-bar input { width: 100%; min-width: 0; min-height: 52px; padding: 12px 48px 12px 10px; }
+  .clear-button { position: absolute; top: 8px; right: 8px; width: 42px; min-height: 52px !important; }
+  .search-bar > #search-button { display: block; width: 100%; min-height: 52px; margin-top: 14px; margin-left: 0; }
 }
 @media (min-width: 621px) and (max-width: 980px) {
   .shell { width: min(880px, calc(100% - 48px)); padding-top: 44px; }
