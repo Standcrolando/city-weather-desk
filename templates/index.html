@@ -299,8 +299,11 @@ git push -u origin main<!doctype html>
     }
 
     async function loadCityImage(city) {
+      const imageController = new AbortController();
+      const imageTimeout = setTimeout(() => imageController.abort(), 8000);
       try {
-        const response = await fetch(`/api/city-image?city=${encodeURIComponent(city)}`);
+        const response = await fetch(`/api/city-image?city=${encodeURIComponent(city)}`, { signal: imageController.signal });
+        if (!response.ok) return;
         const result = await response.json();
         if (result.image_url && input.value.trim() === city) {
           const image = document.createElement('img');
@@ -319,6 +322,8 @@ git push -u origin main<!doctype html>
         }
       } catch (error) {
         // 天氣結果已經顯示，圖片失敗時保留備援視覺。
+      } finally {
+        clearTimeout(imageTimeout);
       }
     }
 
@@ -376,10 +381,16 @@ git push -u origin main<!doctype html>
     async function search(city, forceRefresh = false) {
       if (activeRequest) activeRequest.abort();
       const controller = new AbortController();
+      let timedOut = false;
+      const requestTimeout = setTimeout(() => {
+        timedOut = true;
+        controller.abort();
+      }, 15000);
       activeRequest = controller;
       const hadWeatherCard = !card.classList.contains('hidden');
       status.textContent = t('loading');
       status.classList.add('loading');
+      status.setAttribute('aria-busy', 'true');
       searchButton.disabled = true;
       searchButton.textContent = t('searching');
       try {
@@ -391,7 +402,11 @@ git push -u origin main<!doctype html>
         saveRecentCity(city);
         status.textContent = `${t('updated')}${data.location.name}`;
       } catch (error) {
-        if (error.name === 'AbortError') return;
+        if (error.name === 'AbortError' && !timedOut) return;
+        if (timedOut) {
+          status.textContent = '天氣服務回應逾時，請稍後再試。';
+          return;
+        }
         const snapshot = getWeatherSnapshot(city);
         if (snapshot) {
           renderWeather(snapshot);
@@ -402,9 +417,11 @@ git push -u origin main<!doctype html>
             : error.message;
         }
       } finally {
+        clearTimeout(requestTimeout);
         if (activeRequest === controller) {
           activeRequest = null;
           status.classList.remove('loading');
+          status.setAttribute('aria-busy', 'false');
           searchButton.disabled = false;
           searchButton.textContent = t('search');
         }
@@ -432,6 +449,20 @@ git push -u origin main<!doctype html>
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/static/sw.js').catch(() => {});
+    }
+
+    {
+      document.addEventListener('pointermove', event => {
+        const surface = event.target.closest('.theme-panel, .henan-panel, .weather-card, .search-bar');
+        document.querySelectorAll('.pointer-lit').forEach(element => {
+          if (element !== surface) element.classList.remove('pointer-lit');
+        });
+        if (!surface) return;
+        const bounds = surface.getBoundingClientRect();
+        surface.style.setProperty('--pointer-x', `${event.clientX - bounds.left}px`);
+        surface.style.setProperty('--pointer-y', `${event.clientY - bounds.top}px`);
+        surface.classList.add('pointer-lit');
+      });
     }
     document.querySelectorAll('[data-city]').forEach(button => {
       button.addEventListener('click', () => { input.value = button.dataset.city; search(button.dataset.city); });
