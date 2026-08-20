@@ -172,11 +172,12 @@ h1 { max-width: 680px; margin: 0; font-size: clamp(42px, 6.2vw, 70px); line-heig
 .search-bar > * { position: relative; z-index: 1; }
 .search-bar input { min-width: 0; flex: 1; padding: 12px 4px; border: 0; outline: 0; color: var(--ink); background: transparent; font: 20px var(--font-display); }
 .search-bar input::placeholder { color: var(--muted); opacity: .78; }
-.clear-button { display: none; width: 34px; border: 0; color: var(--muted); background: transparent; font: 28px/1 var(--font-display); cursor: pointer; }
-.clear-button.visible { display: block; }
+.clear-button { display: none; width: 42px; height: 42px; align-items: center; justify-content: center; flex: 0 0 42px; padding: 0; border: 1px solid var(--glass-border); border-radius: 50%; color: var(--muted); background: var(--glass-fill); box-shadow: var(--glass-highlight); font: 24px/1 var(--font-display); line-height: 1; cursor: pointer; }
+.clear-button.visible { display: flex; }
 .clear-button:hover { color: var(--coral); }
 .search-bar button { margin-left: 8px; padding: 0 26px; border: 1px solid color-mix(in srgb, var(--ink) 70%, transparent); border-radius: 13px; color: var(--cream); background: color-mix(in srgb, var(--ink) 88%, transparent); box-shadow: var(--glass-highlight), 0 8px 20px rgba(23,39,45,.16); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); font: 700 14px var(--font-ui); cursor: pointer; transition: background .2s, transform .2s, box-shadow .2s; }
 .search-bar button:hover { background: var(--teal); transform: translateY(-2px); }
+.search-bar > .clear-button { width: 42px; height: 42px; min-width: 42px; max-width: 42px; min-height: 42px; max-height: 42px; margin-left: 0; padding: 0; }
 .search-bar button:focus-visible { box-shadow: 0 0 0 4px color-mix(in srgb, var(--coral) 28%, transparent); }
 .search-bar button:disabled { opacity: .65; cursor: wait; transform: none; }
 .section-heading { display: flex; align-items: baseline; gap: 14px; margin-top: 42px; }
@@ -282,7 +283,8 @@ h3 { margin: 28px 0 12px; font: 700 12px var(--font-ui); letter-spacing: 2px; co
   .unit-panel button:hover { border-color: var(--teal); color: var(--teal); }
   .search-bar { display: block; padding: 8px; border-radius: 18px; border: 1px solid var(--glass-border); }
   .search-bar input { width: 100%; min-height: 52px; padding: 12px 48px 12px 8px; border-bottom: 1px solid color-mix(in srgb, var(--ink) 58%, transparent); }
-  .clear-button { position: absolute; top: 8px; right: 8px; width: 42px; min-height: 52px !important; }
+  .clear-button { position: absolute; top: 13px; right: 13px; display: none; width: 42px !important; min-width: 42px !important; max-width: 42px !important; height: 42px; min-height: 42px !important; max-height: 42px; flex: 0 0 42px; }
+  .clear-button.visible { display: flex; }
   .search-bar > #search-button { display: block; width: 100%; min-height: 52px; margin-top: 14px; margin-left: 0; }
   .henan-panel { margin-top: 48px; padding: 22px 18px; }
   .city-pickers { grid-template-columns: 1fr; gap: 12px; }
@@ -310,7 +312,8 @@ h3 { margin: 28px 0 12px; font: 700 12px var(--font-ui); letter-spacing: 2px; co
   .search-bar { max-width: 720px; }
   .search-bar { display: block; padding: 8px; }
   .search-bar input { width: 100%; min-width: 0; min-height: 52px; padding: 12px 48px 12px 10px; }
-  .clear-button { position: absolute; top: 8px; right: 8px; width: 42px; min-height: 52px !important; }
+  .clear-button { position: absolute; top: 13px; right: 13px; display: none; width: 42px !important; min-width: 42px !important; max-width: 42px !important; height: 42px; min-height: 42px !important; max-height: 42px; flex: 0 0 42px; }
+  .clear-button.visible { display: flex; }
   .search-bar > #search-button { display: block; width: 100%; min-height: 52px; margin-top: 14px; margin-left: 0; }
 }
 @media (min-width: 621px) and (max-width: 980px) {
