@@ -271,8 +271,8 @@ h3 { margin: 28px 0 12px; font: 700 12px var(--font-ui); letter-spacing: 2px; co
   .edition { display: none; }
   .theme-toggle { margin-left: auto; }
   .theme-panel { display: block; padding: 14px; }
-  .theme-options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 12px; }
-  .theme-option { justify-content: center; padding: 8px 4px; }
+  .theme-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 12px; }
+  .theme-option { justify-content: center; min-width: 0; padding: 8px 3px; font-size: 11px; }
   .theme-option .swatch { width: 12px; height: 12px; }
   .unit-panel { display: grid; grid-template-columns: auto auto; align-items: center; gap: 10px; width: 100%; max-width: 100%; margin-top: 14px; color: var(--muted); font: 11px var(--font-ui); }
   .unit-panel > span, .unit-panel > button { white-space: nowrap; }
@@ -292,6 +292,7 @@ h3 { margin: 28px 0 12px; font: 700 12px var(--font-ui); letter-spacing: 2px; co
   .weather-card:hover { transform: none; }
   .city-image { width: calc(100% + 44px); height: 150px; margin: -22px -22px 24px; }
   .place { display: grid; grid-template-columns: 1fr auto; }
+  .place h2 { font-size: clamp(30px, 10vw, 44px); overflow-wrap: anywhere; }
   .weather-icon { grid-column: 1; grid-row: 2; margin: 24px 0 0; }
   .temperature { grid-column: 2; grid-row: 2; margin-top: 28px; }
   .condition-row { display: block; }
@@ -299,6 +300,8 @@ h3 { margin: 28px 0 12px; font: 700 12px var(--font-ui); letter-spacing: 2px; co
   .card-footer { display: block; line-height: 1.8; }
   .detail-grid { grid-template-columns: repeat(2, 1fr); }
   .detail-grid .wide-detail { grid-column: span 2; }
+  .detail-grid div { min-width: 0; padding: 11px 10px; }
+  .detail-grid b { overflow-wrap: anywhere; font-size: 13px; }
   .temperature { margin-top: 28px; }
   .forecast { grid-template-columns: 1fr; }
   .forecast li { grid-template-columns: 55px 34px 1fr auto; align-items: center; }
@@ -306,6 +309,11 @@ h3 { margin: 28px 0 12px; font: 700 12px var(--font-ui); letter-spacing: 2px; co
 }
 @media (min-width: 621px) and (max-width: 980px) {
   .shell { width: min(880px, calc(100% - 48px)); padding-top: 44px; }
+  .weather-card { padding: 28px; }
+  .city-image { width: calc(100% + 56px); margin: -28px -28px 26px; }
+  .detail-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .forecast li { min-width: 0; padding: 13px 8px; }
+  .forecast strong { overflow-wrap: anywhere; font-size: 14px; }
   .theme-panel { align-items: flex-start; }
   .theme-options { max-width: 470px; justify-content: flex-end; }
   .detail-grid { grid-template-columns: repeat(3, 1fr); }
