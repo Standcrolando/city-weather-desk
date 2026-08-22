@@ -334,7 +334,7 @@ def moon_details(latitude, longitude, timezone_name):
     observer = Observer(latitude=latitude, longitude=longitude)
     try:
         moonset = moon.moonset(observer, date=local_date, tzinfo=local_zone)
-        moonset_text = moonset.strftime("%H:%M")
+        moonset_text = moonset.strftime("%H:%M") if moonset else "今日不可見"
     except (ValueError, KeyError):
         moonset_text = "今日不可見"
     phase = moon.phase(local_date)
